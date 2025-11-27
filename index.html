@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Northeastern CPS – IBM Chatbot Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #060714;
+      --card-bg: #111322;
+      --accent: #d00000;
+      --accent-soft: #ff595e;
+      --text: #f7f7ff;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2933 0, var(--bg) 45%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .wrapper {
+      max-width: 900px;
+      width: 100%;
+      background: linear-gradient(135deg, #151827 0%, #0b0d18 50%, #151827 100%);
+      border-radius: 24px;
+      padding: 2.5rem 2.75rem;
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wrapper::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at top left, rgba(208, 0, 0, 0.2), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.06), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .header {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1.75rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent) 0, #ffb703 70%);
+      box-shadow: 0 0 0 4px rgba(208, 0, 0, 0.4);
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 4vw, 3rem);
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+    }
+
+    h1 span {
+      color: var(--accent-soft);
+    }
+
+    .subtitle {
+      max-width: 520px;
+      font-size: 0.98rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 1.75rem;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 800px) {
+      .wrapper {
+        padding: 1.75rem 1.4rem 2.2rem;
+      }
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: rgba(6, 8, 20, 0.9);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1.4rem 1.5rem 1.6rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 89, 94, 0.18), transparent 65%);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.65);
+      font-size: 0.75rem;
+      color: #a7f3d0;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #22c55e 0, #15803d 70%);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35);
+    }
+
+    .step-list {
+      margin-top: 0.75rem;
+      list-style: none;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .step-index {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .hint-box {
+      margin-top: 0.9rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .hint-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 0.1rem;
+      display: block;
+    }
+
+    .rhs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+    }
+
+    .pill-row span {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .note {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .note strong {
+      color: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <header class="header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        IBM watsonx • Northeastern CPS
+      </div>
+      <h1>
+        <span>Pathway to Success</span> Chatbot
+      </h1>
+      <p class="subtitle">
+        This page hosts the IBM watsonx Assistant web chat. When your assistant is correctly configured,
+        you’ll see a chat bubble appear in the corner of the screen.
+      </p>
+    </header>
+
+    <section class="layout">
+      <div class="card">
+        <div class="card-title-row">
+          <div class="card-title">How this page works</div>
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            Live client-side demo
+          </div>
+        </div>
+
+        <ul class="step-list">
+          <li>
+            <span class="step-index">1</span>
+            <span>IBM watsonx provides a JavaScript snippet for your Web Chat integration.</span>
+          </li>
+          <li>
+            <span class="step-index">2</span>
+            <span>This page loads that script in the browser, which renders a chatbot widget.</span>
+          </li>
+          <li>
+            <span class="step-index">3</span>
+            <span>GitHub Pages serves this file as a static website — no backend required.</span>
+          </li>
+        </ul>
+
+        <div class="hint-box">
+          <span class="hint-label">Important</span>
+          Paste the exact IBM `<script>…</script>` block at the bottom of this file
+          where it says <strong>“PASTE IBM WATSONX SNIPPET HERE”</strong>.
+        </div>
+      </div>
+
+      <aside class="rhs">
+        <div class="note">
+          <strong>Tip for testing:</strong> after you push this file to GitHub Pages,
+          open the live URL in an incognito window. If the IBM configuration is correct,
+          a chat bubble should appear (often in the bottom-right corner).
+        </div>
+
+        <div class="pill-row">
+          <span>Static HTML</span>
+          <span>IBM watsonx Web Chat</span>
+          <span>GitHub Pages</span>
+          <span>No backend</span>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      Demo site for IBM watsonx Assistant • Hosted on GitHub Pages
+    </footer>
+  </div>
+
+<script>
+  window.watsonAssistantChatOptions = {
+    integrationID: "b6cf7e3f-bc0f-408d-803e-56ce2756db20", // The ID of this integration.
+    region: "us-south", // The region your integration is hosted in.
+    serviceInstanceID: "d705db43-56c9-4808-ac35-1d84ceaaf08b", // The ID of your service instance.
+    onLoad: async (instance) => { await instance.render(); }
+  };
+  setTimeout(function(){
+    const t=document.createElement('script');
+    t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+    document.head.appendChild(t);
+  });
+</script>
+
+</body>
+</html>
